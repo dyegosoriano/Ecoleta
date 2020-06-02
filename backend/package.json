@@ -23,6 +23,7 @@
     "typescript": "^3.9.3"
   },
   "scripts": {
-    "development": "ts-node-dev src/server.ts"
+    "development": "ts-node-dev src/server.ts",
+    "knex:migrate": "knex migrate:latest --knexfile knexfile.ts migrate:latest"
   }
 }
