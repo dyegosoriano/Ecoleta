@@ -5,7 +5,16 @@ import knex from '../database/connection'
 class PointsController {
   async store (request: Request, response: Response) {
     const { name, email, whatsapp, latitude, longitude, city, uf, items } = request.body
-    const point = { name, email, whatsapp, latitude, longitude, city, uf, image: 'image-fake' }
+    const point = {
+      image: 'https://images.unsplash.com/photo-1557333610-90ee4a951ecf?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
+      name,
+      email,
+      whatsapp,
+      latitude,
+      longitude,
+      city,
+      uf
+    }
 
     const trx = await knex.transaction()
     const insertedIds = await trx('points').insert(point)
