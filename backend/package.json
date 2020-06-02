@@ -23,7 +23,7 @@
     "typescript": "^3.9.3"
   },
   "scripts": {
-    "development": "ts-node-dev src/server.ts",
+    "development": "ts-node-dev --transpileOnly --ignore-watch node_modules src/server.ts",
     "knex:seed": "knex --knexfile knexfile.ts seed:run",
     "knex:migrate": "knex --knexfile knexfile.ts migrate:latest"
   }
