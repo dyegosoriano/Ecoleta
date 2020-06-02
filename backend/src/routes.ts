@@ -1,12 +1,12 @@
 import express from 'express'
 
-import ItemController from './controllers/ItemController'
+import ItemsController from './controllers/ItemsController'
 import PointsController from './controllers/PointsController'
 
 const routes = express.Router()
 
 routes
-  .get('/items', ItemController.index)
+  .get('/items', ItemsController.index)
   .post('/points', PointsController.store)
 
 export default routes
