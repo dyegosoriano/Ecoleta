@@ -8,6 +8,7 @@ const routes = express.Router()
 routes
   .get('/items', ItemsController.index)
   .post('/points', PointsController.store)
+  .get('/points', PointsController.index)
   .get('/points/:id', PointsController.show)
 
 export default routes
