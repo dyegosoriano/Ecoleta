@@ -5,7 +5,7 @@ import * as Location from 'expo-location';
 import { SvgUri } from 'react-native-svg';
 import MapView, { Marker } from 'react-native-maps';
 import { Feather as Icon } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -30,6 +30,11 @@ interface Point {
   longitude: number;
 }
 
+interface Params {
+  uf: string;
+  city: string;
+}
+
 const Points: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [points, setPoints] = useState<Point[]>([]);
@@ -39,6 +44,9 @@ const Points: React.FC = () => {
     0,
   ]);
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const routeParams = route.params as Params;
 
   useEffect(() => {
     async function locationPosition() {
@@ -70,15 +78,15 @@ const Points: React.FC = () => {
     api
       .get('points', {
         params: {
-          city: 'Salvador',
-          uf: 'BA',
-          items: [1, 2, 3, 4, 5, 6],
+          city: routeParams.city,
+          uf: routeParams.uf,
+          items: selectedItems,
         },
       })
       .then((response) => {
         setPoints(response.data);
       });
-  }, []);
+  }, [selectedItems]);
 
   function hadleNavigateBack() {
     navigation.goBack();
