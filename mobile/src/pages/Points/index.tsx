@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import Constants from 'expo-constants';
+import * as Location from 'expo-location';
 import { SvgUri } from 'react-native-svg';
 import MapView, { Marker } from 'react-native-maps';
 import { Feather as Icon } from '@expo/vector-icons';
@@ -11,6 +12,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert,
   StyleSheet,
 } from 'react-native';
 
@@ -20,10 +22,43 @@ interface Item {
   image_url: string;
 }
 
+interface Point {
+  id: number;
+  name: string;
+  image: string;
+  latitude: number;
+  longitude: number;
+}
+
 const Points: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
+  const [points, setPoints] = useState<Point[]>([]);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [inicialPosition, setInicialPosition] = useState<[number, number]>([
+    0,
+    0,
+  ]);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    async function locationPosition() {
+      const { status } = await Location.requestPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Opssssss...',
+          'Precisamos da sua permissão para obter a localização'
+        );
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync();
+      const { latitude, longitude } = location.coords;
+      setInicialPosition([latitude, longitude]);
+    }
+
+    locationPosition();
+  }, []);
 
   useEffect(() => {
     api.get('items').then((response) => {
@@ -31,12 +66,26 @@ const Points: React.FC = () => {
     });
   }, []);
 
+  useEffect(() => {
+    api
+      .get('points', {
+        params: {
+          city: 'Salvador',
+          uf: 'BA',
+          items: [1, 2, 3, 4, 5, 6],
+        },
+      })
+      .then((response) => {
+        setPoints(response.data);
+      });
+  }, []);
+
   function hadleNavigateBack() {
     navigation.goBack();
   }
 
-  function handleNavigateToDetail() {
-    navigation.navigate('Detail');
+  function handleNavigateToDetail(id: number) {
+    navigation.navigate('Detail', { point_id: id });
   }
 
   function handleSelectItem(id: number) {
@@ -63,35 +112,38 @@ const Points: React.FC = () => {
         </Text>
 
         <View style={styles.mapContainer}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: -12.996906,
-              longitude: -38.5107194,
-              latitudeDelta: 0.014,
-              longitudeDelta: 0.014,
-            }}
-          >
-            <Marker
-              style={styles.mapMarker}
-              onPress={handleNavigateToDetail}
-              coordinate={{
-                latitude: -12.996906,
-                longitude: -38.509,
+          {inicialPosition[0] !== 0 && (
+            <MapView
+              style={styles.map}
+              loadingEnabled={inicialPosition[0] === 0}
+              initialRegion={{
+                latitude: inicialPosition[0],
+                longitude: inicialPosition[1],
+                latitudeDelta: 0.014,
+                longitudeDelta: 0.014,
               }}
             >
-              <View style={styles.mapMarkerContainer}>
-                <Image
-                  style={styles.mapMarkerImage}
-                  source={{
-                    uri:
-                      'https://images.unsplash.com/photo-1557333610-90ee4a951ecf?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
+              {points.map((point) => (
+                <Marker
+                  key={String(point.id)}
+                  style={styles.mapMarker}
+                  onPress={() => handleNavigateToDetail(point.id)}
+                  coordinate={{
+                    latitude: point.latitude,
+                    longitude: point.longitude,
                   }}
-                />
-                <Text style={styles.mapMarkerTitle}>Mercado</Text>
-              </View>
-            </Marker>
-          </MapView>
+                >
+                  <View style={styles.mapMarkerContainer}>
+                    <Image
+                      style={styles.mapMarkerImage}
+                      source={{ uri: point.image }}
+                    />
+                    <Text style={styles.mapMarkerTitle}>{point.name}</Text>
+                  </View>
+                </Marker>
+              ))}
+            </MapView>
+          )}
         </View>
       </View>
 
@@ -106,7 +158,7 @@ const Points: React.FC = () => {
               key={String(item.id)}
               style={[
                 styles.item,
-                selectedItems.includes(item.id) ? styles.selectedItem : {}
+                selectedItems.includes(item.id) ? styles.selectedItem : {},
               ]}
               activeOpacity={0.5}
               onPress={() => handleSelectItem(item.id)}
