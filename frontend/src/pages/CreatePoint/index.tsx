@@ -6,6 +6,8 @@ import { Map, TileLayer, Marker } from 'react-leaflet';
 import api from '../../services/api';
 import axios from 'axios';
 
+import Dropzone from '../../components/Dropzone'
+
 import './styles.css';
 
 import logo from '../../assets/logo.svg';
@@ -166,6 +168,8 @@ const CreatePoint: React.FC = () => {
         <h1>
           Cadastro do <br /> ponto de coleta
         </h1>
+
+        <Dropzone/>
 
         <fieldset>
           <legend>
