@@ -21,6 +21,7 @@ interface Params {
 interface Data {
   point: {
     image: string;
+    image_url: string;
     name: string;
     email: string;
     whatsapp: string;
@@ -55,10 +56,9 @@ const Detail: React.FC = () => {
     });
   }
 
-  function handleWhatsapp () {
-    Linking.openURL(`whatsapp://send?phone=${data.point.whatsapp}`)
+  function handleWhatsapp() {
+    Linking.openURL(`whatsapp://send?phone=${data.point.whatsapp}`);
   }
-  
 
   if (!data.point) {
     return null;
@@ -74,7 +74,7 @@ const Detail: React.FC = () => {
         <Image
           style={styles.pointImage}
           source={{
-            uri: data.point.image,
+            uri: data.point.image_url,
           }}
         />
 
