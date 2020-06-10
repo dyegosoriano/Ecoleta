@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { resolve } from 'path'
+import { errors } from 'celebrate'
 
 import routes from './routes'
 
@@ -12,4 +13,6 @@ app
   .use(routes)
   .use('/uploads', express.static(resolve(__dirname, '..', 'uploads')))
 
-app.listen(3333)
+  .use(errors())
+
+  .listen(3333)
